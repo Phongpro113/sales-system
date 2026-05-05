@@ -1,0 +1,15 @@
+.App {
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.loading,
+.error,
+.empty {
+  padding: 1rem;
+}

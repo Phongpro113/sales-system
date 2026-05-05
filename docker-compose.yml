@@ -1,0 +1,88 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    pull_policy: if_not_present
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - sales-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  auth-service:
+    build: ./services/auth-service
+    ports:
+      - "8001:8001"
+    environment:
+      DATABASE_URL: "host=postgres user=postgres password=postgres dbname=auth_db port=5432 sslmode=disable"
+      JWT_SECRET: "${JWT_SECRET:-your-secret-key-change-this-in-production}"
+      PORT: "8001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - sales-network
+    restart: unless-stopped
+
+  product-service:
+    build: ./services/product-service
+    ports:
+      - "8002:8002"
+    environment:
+      DATABASE_URL: "host=postgres user=postgres password=postgres dbname=product_db port=5432 sslmode=disable"
+      PORT: "8002"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - sales-network
+    restart: unless-stopped
+
+  order-service:
+    build: ./services/order-service
+    ports:
+      - "8003:8003"
+    environment:
+      DATABASE_URL: "host=postgres user=postgres password=postgres dbname=order_db port=5432 sslmode=disable"
+      PRODUCT_SERVICE_URL: "http://product-service:8002"
+      JWT_SECRET: "${JWT_SECRET:-your-secret-key-change-this-in-production}"
+      PORT: "8003"
+    depends_on:
+      - postgres
+      - product-service
+    networks:
+      - sales-network
+    restart: unless-stopped
+
+  api-gateway:
+    build: ./api-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      AUTH_SERVICE_URL: "http://auth-service:8001"
+      PRODUCT_SERVICE_URL: "http://product-service:8002"
+      ORDER_SERVICE_URL: "http://order-service:8003"
+      JWT_SECRET: "${JWT_SECRET:-your-secret-key-change-this-in-production}"
+      PORT: "8080"
+    depends_on:
+      - auth-service
+      - product-service
+      - order-service
+    networks:
+      - sales-network
+    restart: unless-stopped
+
+networks:
+  sales-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
