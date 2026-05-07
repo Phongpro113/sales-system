@@ -1,6 +1,6 @@
 module github.com/sales-system/auth-service
 
-go 1.21
+go 1.26.2
 
 require (
 	github.com/golang-jwt/jwt/v5 v5.2.0

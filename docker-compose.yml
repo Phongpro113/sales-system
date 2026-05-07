@@ -62,6 +62,20 @@ services:
       - sales-network
     restart: unless-stopped
 
+  admin-service:
+    build: ./services/admin-service
+    ports:
+      - "8005:8005"
+    environment:
+      DATABASE_URL: "host=postgres user=postgres password=postgres dbname=product_db port=5432 sslmode=disable"
+      PORT: "8005"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - sales-network
+    restart: unless-stopped
+
   api-gateway:
     build: ./api-gateway
     ports:
@@ -70,12 +84,14 @@ services:
       AUTH_SERVICE_URL: "http://auth-service:8001"
       PRODUCT_SERVICE_URL: "http://product-service:8002"
       ORDER_SERVICE_URL: "http://order-service:8003"
+      ADMIN_SERVICE_URL: "http://admin-service:8005"
       JWT_SECRET: "${JWT_SECRET:-your-secret-key-change-this-in-production}"
       PORT: "8080"
     depends_on:
       - auth-service
       - product-service
       - order-service
+      - admin-service
     networks:
       - sales-network
     restart: unless-stopped

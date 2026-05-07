@@ -28,6 +28,7 @@ var (
     authServiceURL    string
     productServiceURL string
     orderServiceURL   string
+    adminServiceURL   string
     jwtSecret         []byte
 )
 
@@ -35,6 +36,7 @@ func init() {
     authServiceURL = getEnv("AUTH_SERVICE_URL", "http://localhost:8001")
     productServiceURL = getEnv("PRODUCT_SERVICE_URL", "http://localhost:8002")
     orderServiceURL = getEnv("ORDER_SERVICE_URL", "http://localhost:8003")
+    adminServiceURL = getEnv("ADMIN_SERVICE_URL", "http://localhost:8005")
     jwtSecret = []byte(getEnv("JWT_SECRET", "default-secret-key-change-in-production"))
 }
 
@@ -195,6 +197,7 @@ func main() {
     log.Printf("Auth Service URL: %s", authServiceURL)
     log.Printf("Product Service URL: %s", productServiceURL)
     log.Printf("Order Service URL: %s", orderServiceURL)
+    log.Printf("Admin Service URL: %s", adminServiceURL)
     
     r := mux.NewRouter()
     
@@ -216,6 +219,11 @@ func main() {
     api.HandleFunc("/products/{id:[0-9]+}", proxyWithContext(productServiceURL)).Methods("GET", "PUT", "DELETE", "OPTIONS")
     api.HandleFunc("/products/{id:[0-9]+}/stock", proxyWithContext(productServiceURL)).Methods("PATCH", "OPTIONS")
     api.HandleFunc("/categories", proxyWithContext(productServiceURL)).Methods("GET", "OPTIONS")
+    
+    // Admin service routes
+    api.HandleFunc("/admin/products", proxyWithContext(adminServiceURL)).Methods("GET", "POST", "OPTIONS")
+    api.HandleFunc("/admin/products/{id:[0-9]+}", proxyWithContext(adminServiceURL)).Methods("PUT", "OPTIONS")
+    api.HandleFunc("/admin/health", proxyWithContext(adminServiceURL)).Methods("GET")
 
     // Order service routes (all require auth)
     api.HandleFunc("/orders", proxyWithContext(orderServiceURL)).Methods("GET", "POST", "OPTIONS")
