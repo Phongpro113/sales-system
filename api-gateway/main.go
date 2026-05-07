@@ -45,10 +45,44 @@ func getEnv(key, defaultValue string) string {
     return defaultValue
 }
 
+// publicPaths defines routes that don't require authentication
+var publicPaths = []struct {
+    path    string
+    methods []string
+}{
+    {"/api/auth/register", []string{"POST"}},
+    {"/api/auth/login", []string{"POST"}},
+    {"/api/products", []string{"GET"}},
+    {"/api/categories", []string{"GET"}},
+}
+
+// isPublicRoute checks if the request matches a public (no-auth) route
+func isPublicRoute(r *http.Request) bool {
+    if r.URL.Path == "/health" {
+        return true
+    }
+    // Allow all OPTIONS (preflight) requests
+    if r.Method == "OPTIONS" {
+        return true
+    }
+    for _, p := range publicPaths {
+        // Exact match or prefix match for paths like /api/products/123
+        pathMatch := r.URL.Path == p.path || strings.HasPrefix(r.URL.Path, p.path+"/")
+        if pathMatch {
+            for _, m := range p.methods {
+                if r.Method == m {
+                    return true
+                }
+            }
+        }
+    }
+    return false
+}
+
 func authMiddleware(next http.Handler) http.Handler {
     return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-        // Skip auth for health check
-        if r.URL.Path == "/health" {
+        // Skip auth for public routes
+        if isPublicRoute(r) {
             next.ServeHTTP(w, r)
             return
         }
@@ -123,9 +157,9 @@ func proxy(target string) http.HandlerFunc {
 
 func proxyWithContext(target string) http.HandlerFunc {
     return func(w http.ResponseWriter, r *http.Request) {
-        // Remove the /api prefix when proxying to internal services
+        // Preserve the /api prefix so downstream services receive the routes
+        // they already expose (for example, /api/products and /api/orders).
         originalPath := r.URL.Path
-        r.URL.Path = strings.TrimPrefix(r.URL.Path, "/api")
         
         remote, err := url.Parse(target)
         if err != nil {
@@ -141,7 +175,7 @@ func proxyWithContext(target string) http.HandlerFunc {
         r.Header.Set("X-Forwarded-Host", r.Header.Get("Host"))
         r.Host = remote.Host
         
-        log.Printf("Proxying %s %s (original: %s) -> %s", r.Method, r.URL.Path, originalPath, target)
+        log.Printf("Proxying %s %s -> %s", r.Method, originalPath, target)
         
         proxy.ServeHTTP(w, r)
     }
@@ -167,31 +201,27 @@ func main() {
     // Health check endpoint (no auth required)
     r.HandleFunc("/health", healthHandler).Methods("GET")
     
-    // Public routes (no auth required)
-    r.HandleFunc("/api/auth/register", proxy(authServiceURL+"/api/register")).Methods("POST", "OPTIONS")
-    r.HandleFunc("/api/auth/login", proxy(authServiceURL+"/api/login")).Methods("POST", "OPTIONS")
-    
-    // Protected routes (auth required)
+    // All API routes go through the subrouter with auth middleware.
+    // Public routes are whitelisted in isPublicRoute() and skip auth.
     api := r.PathPrefix("/api").Subrouter()
     api.Use(authMiddleware)
     
-    // Auth service routes (protected)
+    // Auth service routes
+    api.HandleFunc("/auth/register", proxy(authServiceURL+"/api/register")).Methods("POST", "OPTIONS")
+    api.HandleFunc("/auth/login", proxy(authServiceURL+"/api/login")).Methods("POST", "OPTIONS")
     api.HandleFunc("/auth/validate", proxy(authServiceURL+"/api/validate")).Methods("GET", "OPTIONS")
     
-    // Product service routes
-    api.HandleFunc("/products", proxyWithContext(productServiceURL+"/api/products")).Methods("GET", "OPTIONS")
-    api.HandleFunc("/products/{id:[0-9]+}", proxyWithContext(productServiceURL+"/api/products/{id}")).Methods("GET", "OPTIONS")
-    api.HandleFunc("/products", proxyWithContext(productServiceURL+"/api/products")).Methods("POST", "OPTIONS")
-    api.HandleFunc("/products/{id:[0-9]+}", proxyWithContext(productServiceURL+"/api/products/{id}")).Methods("PUT", "OPTIONS")
-    api.HandleFunc("/products/{id:[0-9]+}/stock", proxyWithContext(productServiceURL+"/api/products/{id}/stock")).Methods("PATCH", "OPTIONS")
-    api.HandleFunc("/products/{id:[0-9]+}", proxyWithContext(productServiceURL+"/api/products/{id}")).Methods("DELETE", "OPTIONS")
-    api.HandleFunc("/categories", proxyWithContext(productServiceURL+"/api/categories")).Methods("GET", "OPTIONS")
-    
-    // Order service routes
-    api.HandleFunc("/orders", proxyWithContext(orderServiceURL+"/api/orders")).Methods("GET", "POST", "OPTIONS")
-    api.HandleFunc("/orders/{id:[0-9]+}", proxyWithContext(orderServiceURL+"/api/orders/{id}")).Methods("GET", "OPTIONS")
-    api.HandleFunc("/orders/{id:[0-9]+}/status", proxyWithContext(orderServiceURL+"/api/orders/{id}/status")).Methods("PATCH", "OPTIONS")
-    api.HandleFunc("/orders/{id:[0-9]+}/cancel", proxyWithContext(orderServiceURL+"/api/orders/{id}/cancel")).Methods("POST", "OPTIONS")
+    // Product service routes (GET is public, POST/PUT/DELETE require auth)
+    api.HandleFunc("/products", proxyWithContext(productServiceURL)).Methods("GET", "POST", "OPTIONS")
+    api.HandleFunc("/products/{id:[0-9]+}", proxyWithContext(productServiceURL)).Methods("GET", "PUT", "DELETE", "OPTIONS")
+    api.HandleFunc("/products/{id:[0-9]+}/stock", proxyWithContext(productServiceURL)).Methods("PATCH", "OPTIONS")
+    api.HandleFunc("/categories", proxyWithContext(productServiceURL)).Methods("GET", "OPTIONS")
+
+    // Order service routes (all require auth)
+    api.HandleFunc("/orders", proxyWithContext(orderServiceURL)).Methods("GET", "POST", "OPTIONS")
+    api.HandleFunc("/orders/{id:[0-9]+}", proxyWithContext(orderServiceURL)).Methods("GET", "OPTIONS")
+    api.HandleFunc("/orders/{id:[0-9]+}/status", proxyWithContext(orderServiceURL)).Methods("PATCH", "OPTIONS")
+    api.HandleFunc("/orders/{id:[0-9]+}/cancel", proxyWithContext(orderServiceURL)).Methods("POST", "OPTIONS")
     
     // CORS configuration
     c := cors.New(cors.Options{
