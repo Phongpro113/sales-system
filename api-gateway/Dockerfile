@@ -1,4 +1,4 @@
-FROM golang:1.26.2-alpine AS builder
+FROM golang:1.23-alpine AS builder
 
 WORKDIR /app
 
@@ -9,7 +9,7 @@ COPY . .
 
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o api-gateway .
 
-FROM golang:1.26.2-alpine
+FROM golang:1.23-alpine
 
 WORKDIR /root/
 

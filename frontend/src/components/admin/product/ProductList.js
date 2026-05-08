@@ -19,7 +19,7 @@ const ProductList = () => {
 
   const fetchProducts = async () => {
     try {
-      const response = await axios.get('http://localhost:8080/api/admin/products', {
+      const response = await axios.get('/api/admin/products', {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
       setData(response.data.products || []);
@@ -33,7 +33,7 @@ const ProductList = () => {
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this product?')) {
       try {
-        await axios.delete(`http://localhost:8080/api/admin/products/${id}`, {
+        await axios.delete(`/api/admin/products/${id}`, {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
         });
         fetchProducts();
@@ -49,9 +49,42 @@ const ProductList = () => {
       header: 'ID',
     },
     {
+      accessorKey: 'image_url',
+      header: 'Image',
+      cell: (info) => {
+        const url = info.getValue();
+        // Strict check: must be a string, length > 10, and contain a dot
+        const isValidUrl = typeof url === 'string' && url.length > 10 && url.includes('.');
+
+        if (!isValidUrl) {
+          return (
+            <div style={{ width: '40px', height: '40px', background: '#f1f5f9', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', color: '#94a3b8' }}>
+              No img
+            </div>
+          );
+        }
+
+        return (
+          <img
+            src={url}
+            alt="Product"
+            style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px' }}
+            onError={(e) => {
+              e.target.style.display = 'none';
+            }}
+          />
+        );
+      },
+    },
+    {
       accessorKey: 'name',
       header: 'Product Name',
       cell: (info) => <span style={{ fontWeight: 600 }}>{info.getValue()}</span>,
+    },
+    {
+      accessorKey: 'sku',
+      header: 'SKU',
+      cell: (info) => <code style={{ fontSize: '0.875rem' }}>{info.getValue()}</code>,
     },
     {
       accessorKey: 'price',
@@ -112,9 +145,9 @@ const ProductList = () => {
                       {header.isPlaceholder
                         ? null
                         : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
                     </th>
                   ))}
                 </tr>

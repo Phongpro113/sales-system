@@ -30,6 +30,7 @@ var (
 	productServiceURL string
 	orderServiceURL   string
 	adminServiceURL   string
+	fileServiceURL    string
 	jwtSecret         []byte
 )
 
@@ -38,6 +39,7 @@ func init() {
 	productServiceURL = getEnv("PRODUCT_SERVICE_URL", "http://localhost:8002")
 	orderServiceURL = getEnv("ORDER_SERVICE_URL", "http://localhost:8003")
 	adminServiceURL = getEnv("ADMIN_SERVICE_URL", "http://localhost:8005")
+	fileServiceURL = getEnv("FILE_SERVICE_URL", "http://localhost:8081")
 	jwtSecret = []byte(getEnv("JWT_SECRET", "default-secret-key-change-in-production"))
 }
 
@@ -57,6 +59,7 @@ var publicPaths = []struct {
 	{"/api/auth/login", []string{"POST"}},
 	{"/api/products", []string{"GET"}},
 	{"/api/categories", []string{"GET"}},
+	{"/uploads", []string{"GET"}},
 }
 
 // isPublicRoute checks if the request matches a public (no-auth) route
@@ -208,6 +211,7 @@ func main() {
 	log.Printf("Product Service URL: %s", productServiceURL)
 	log.Printf("Order Service URL: %s", orderServiceURL)
 	log.Printf("Admin Service URL: %s", adminServiceURL)
+	log.Printf("File Service URL: %s", fileServiceURL)
 
 	r := mux.NewRouter()
 
@@ -233,7 +237,11 @@ func main() {
 	// Admin service routes
 	api.HandleFunc("/admin/products", proxyWithContext(adminServiceURL)).Methods("GET", "POST", "OPTIONS")
 	api.HandleFunc("/admin/products/{id:[0-9]+}", proxyWithContext(adminServiceURL)).Methods("GET", "PUT", "OPTIONS")
+	api.HandleFunc("/admin/upload", proxyWithContext(adminServiceURL)).Methods("POST", "OPTIONS")
 	api.HandleFunc("/admin/health", proxyWithContext(adminServiceURL)).Methods("GET")
+
+	// Static files from file service (uploads)
+	r.HandleFunc("/uploads/{filename}", proxy(fileServiceURL+"/uploads")).Methods("GET")
 
 	// Order service routes (all require auth)
 	api.HandleFunc("/orders", proxyWithContext(orderServiceURL)).Methods("GET", "POST", "OPTIONS")
