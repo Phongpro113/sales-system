@@ -2,7 +2,7 @@ import axios from 'axios';
 import { ArrowLeft, Save } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import './Admin.css';
+import '../Admin.css';
 
 const ProductForm = () => {
   const { id } = useParams();

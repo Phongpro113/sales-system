@@ -1,20 +1,20 @@
 import { Navigate, Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import './App.css';
-import Cart from './components/Cart';
-import Login from './components/Login';
-import Navbar from './components/Navbar';
-import Orders from './components/Orders';
-import PrivateRoute from './components/PrivateRoute';
-import ProductDetail from './components/ProductDetail';
-import ProductList from './components/ProductList';
-import Register from './components/Register';
+import Cart from './components/cart/Cart';
+import Login from './components/auth/Login';
+import Navbar from './components/layout/Navbar';
+import Orders from './components/order/Orders';
+import PrivateRoute from './components/auth/PrivateRoute';
+import ProductDetail from './components/product/ProductDetail';
+import ProductList from './components/product/ProductList';
+import Register from './components/auth/Register';
 import { AuthProvider } from './contexts/AuthContext';
 import { CartProvider } from './contexts/CartContext';
-import AdminRoute from './components/AdminRoute';
+import AdminRoute from './components/auth/AdminRoute';
 import AdminLayout from './components/admin/AdminLayout';
 import AdminDashboard from './components/admin/AdminDashboard';
-import AdminProductList from './components/admin/ProductList';
-import ProductForm from './components/admin/ProductForm';
+import AdminProductList from './components/admin/product/ProductList';
+import ProductForm from './components/admin/product/ProductForm';
 
 function App() {
   return (

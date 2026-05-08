@@ -7,7 +7,7 @@ import axios from 'axios';
 import { Edit, Plus, Trash2 } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import './Admin.css';
+import '../Admin.css';
 
 const ProductList = () => {
   const [data, setData] = useState([]);
