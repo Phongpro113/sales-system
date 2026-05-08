@@ -1,0 +1,125 @@
+.navbar {
+  background: #ffffff;
+  color: #1a202c;
+  padding: 0.75rem 2rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.navbar-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.navbar-brand {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #2d3748;
+  text-decoration: none;
+  background: linear-gradient(to right, #3182ce, #63b3ed);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.navbar-links {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.navbar-link {
+  color: #4a5568;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.875rem;
+  transition: color 0.2s;
+}
+
+.navbar-link:hover {
+  color: #3182ce;
+}
+
+.navbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.cart-badge {
+  background-color: #3182ce;
+  color: white;
+  font-size: 0.75rem;
+  padding: 0.125rem 0.375rem;
+  border-radius: 9999px;
+  margin-left: 0.25rem;
+}
+
+.btn-login {
+  color: #4a5568;
+  text-decoration: none;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  transition: background-color 0.2s;
+}
+
+.btn-login:hover {
+  background-color: #f7fafc;
+}
+
+.btn-register {
+  background-color: #3182ce;
+  color: white;
+  text-decoration: none;
+  font-weight: 700;
+  padding: 0.5rem 1.25rem;
+  border-radius: 0.5rem;
+  transition: background-color 0.2s;
+}
+
+.btn-register:hover {
+  background-color: #2b6cb0;
+}
+
+.btn-logout {
+  background: transparent;
+  border: 1.5px solid #e2e8f0;
+  color: #4a5568;
+  font-weight: 600;
+  padding: 0.4rem 1rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-logout:hover {
+  background-color: #fff5f5;
+  color: #c53030;
+  border-color: #feb2b2;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: #4a5568;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  background-color: #ebf8ff;
+  color: #3182ce;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}

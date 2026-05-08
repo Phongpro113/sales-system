@@ -10,6 +10,11 @@ import ProductList from './components/ProductList';
 import Register from './components/Register';
 import { AuthProvider } from './contexts/AuthContext';
 import { CartProvider } from './contexts/CartContext';
+import AdminRoute from './components/AdminRoute';
+import AdminLayout from './components/admin/AdminLayout';
+import AdminDashboard from './components/admin/AdminDashboard';
+import AdminProductList from './components/admin/ProductList';
+import ProductForm from './components/admin/ProductForm';
 
 function App() {
   return (
@@ -26,6 +31,15 @@ function App() {
                 <Route path="/products/:id" element={<ProductDetail />} />
                 <Route path="/cart" element={<PrivateRoute><Cart /></PrivateRoute>} />
                 <Route path="/orders" element={<PrivateRoute><Orders /></PrivateRoute>} />
+                
+                {/* Admin Routes */}
+                <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
+                  <Route index element={<AdminDashboard />} />
+                  <Route path="product" element={<AdminProductList />} />
+                  <Route path="product/create" element={<ProductForm />} />
+                  <Route path="product/:id/edit" element={<ProductForm />} />
+                </Route>
+
                 <Route path="/" element={<Navigate to="/products" />} />
               </Routes>
             </div>
