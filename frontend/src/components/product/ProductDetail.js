@@ -2,6 +2,7 @@ import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useCart } from '../../contexts/CartContext';
+import './ProductDetail.css';
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -29,13 +30,19 @@ const ProductDetail = () => {
   if (!product) return <div className="empty">Product not found</div>;
 
   const price = Number(product.price || 0);
+  const stock = Number(product.stock || 0);
 
   return (
-    <div>
+    <div className="product-detail">
       <h2>{product.name}</h2>
-      <p>{product.description}</p>
-      <p>${price.toFixed(2)}</p>
-      <button onClick={() => addToCart(product)}>Add to cart</button>
+      <img src={product.image_url || '/placeholder.png'} alt={product.name} />
+      <p className="detail-description">{product.description}</p>
+      <p className="detail-price">Price: ${price.toFixed(2)}</p>
+      <p className="detail-stock">Stock: {stock}</p>
+      <div className="detail-actions">
+        <button className="btn-secondary" onClick={() => addToCart(product)}>Add to cart</button>
+        <button className="btn-primary" onClick={() => addToCart(product)}>Buy now</button>
+      </div>
     </div>
   );
 };

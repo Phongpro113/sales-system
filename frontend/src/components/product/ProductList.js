@@ -1,14 +1,12 @@
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useCart } from '../../contexts/CartContext';
 import './ProductList.css';
 
 const ProductList = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const { addToCart } = useCart();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -50,15 +48,15 @@ const ProductList = () => {
         {products.map((product) => {
           const price = Number(product.price || 0);
           return (
-            <div key={product.id} className="product-card">
-              <img src={product.image_url || '/placeholder.png'} alt={product.name} />
+            <div key={product.id} className="product-card" onClick={() => navigate(`/products/${product.id}`)}>
+              <img
+                src={product.image_url || '/placeholder.png'}
+                alt={product.name}
+                className="product-image"
+              />
               <h3>{product.name}</h3>
               <p className="description">{product.description}</p>
               <p className="price">${price.toFixed(2)}</p>
-              <div className="actions">
-                <button onClick={() => navigate(`/products/${product.id}`)}>Details</button>
-                <button onClick={() => addToCart(product)}>Add to cart</button>
-              </div>
             </div>
           );
         })}

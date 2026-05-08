@@ -123,6 +123,28 @@ func seedProducts() {
 	log.Println("Seeded database with sample products")
 }
 
+func resolveImageURL(imageURL string) string {
+	if imageURL == "" {
+		return imageURL
+	}
+
+	if strings.HasPrefix(imageURL, "http://") || strings.HasPrefix(imageURL, "https://") {
+		return imageURL
+	}
+
+	baseURL := strings.TrimSpace(os.Getenv("BASE_URL"))
+	if baseURL == "" {
+		return imageURL
+	}
+
+	baseURL = strings.TrimRight(baseURL, "/")
+	if !strings.HasPrefix(imageURL, "/") {
+		imageURL = "/" + imageURL
+	}
+
+	return baseURL + imageURL
+}
+
 func getProductsHandler(w http.ResponseWriter, r *http.Request) {
 	var products []Product
 	query := db.Model(&Product{})
@@ -191,15 +213,9 @@ func getProductsHandler(w http.ResponseWriter, r *http.Request) {
 	query.Model(&Product{}).Count(&total)
 	query.Offset(offset).Limit(limit).Find(&products)
 
-	// edit product.image_url from os.Getenv("BASE_URL")
-	baseURL := os.Getenv("BASE_URL")
-	log.Printf("[DEBUG] baseURL=%q, total products=%d", baseURL, len(products))
+	// resolve product.image_url from BASE_URL if it is a relative path
 	for i := range products {
-		log.Printf("[DEBUG] i=%d, before image_url=%q, hasHTTP=%v", i, products[i].ImageURL, strings.HasPrefix(products[i].ImageURL, "http"))
-		if !strings.HasPrefix(products[i].ImageURL, "http") {
-			products[i].ImageURL = baseURL + products[i].ImageURL
-			log.Printf("[DEBUG] i=%d, after  image_url=%q", i, products[i].ImageURL)
-		}
+		products[i].ImageURL = resolveImageURL(products[i].ImageURL)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -225,6 +241,8 @@ func getProductHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Product not found", http.StatusNotFound)
 		return
 	}
+
+	product.ImageURL = resolveImageURL(product.ImageURL)
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(product)
@@ -254,6 +272,7 @@ func createProductHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
+	product.ImageURL = resolveImageURL(product.ImageURL)
 	json.NewEncoder(w).Encode(product)
 }
 
@@ -287,6 +306,7 @@ func updateProductHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	db.First(&product, id)
+	product.ImageURL = resolveImageURL(product.ImageURL)
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(product)
 }
@@ -319,6 +339,7 @@ func updateStockHandler(w http.ResponseWriter, r *http.Request) {
 
 	product.Stock = newStock
 	db.Save(&product)
+	product.ImageURL = resolveImageURL(product.ImageURL)
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(product)
