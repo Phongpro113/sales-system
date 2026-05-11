@@ -29,6 +29,7 @@ var (
 	authServiceURL    string
 	productServiceURL string
 	orderServiceURL   string
+	paymentServiceURL string
 	adminServiceURL   string
 	fileServiceURL    string
 	jwtSecret         []byte
@@ -38,6 +39,7 @@ func init() {
 	authServiceURL = getEnv("AUTH_SERVICE_URL", "http://localhost:8001")
 	productServiceURL = getEnv("PRODUCT_SERVICE_URL", "http://localhost:8002")
 	orderServiceURL = getEnv("ORDER_SERVICE_URL", "http://localhost:8003")
+	paymentServiceURL = getEnv("PAYMENT_SERVICE_URL", "http://localhost:8004")
 	adminServiceURL = getEnv("ADMIN_SERVICE_URL", "http://localhost:8005")
 	fileServiceURL = getEnv("FILE_SERVICE_URL", "http://localhost:8081")
 	jwtSecret = []byte(getEnv("JWT_SECRET", "default-secret-key-change-in-production"))
@@ -59,6 +61,7 @@ var publicPaths = []struct {
 	{"/api/auth/login", []string{"POST"}},
 	{"/api/products", []string{"GET"}},
 	{"/api/categories", []string{"GET"}},
+	{"/api/payments/momo/ipn", []string{"POST"}},
 	{"/uploads", []string{"GET"}},
 }
 
@@ -249,6 +252,13 @@ func main() {
 	api.HandleFunc("/orders/{id:[0-9]+}", proxyWithContext(orderServiceURL)).Methods("GET", "OPTIONS")
 	api.HandleFunc("/orders/{id:[0-9]+}/status", proxyWithContext(orderServiceURL)).Methods("PATCH", "OPTIONS")
 	api.HandleFunc("/orders/{id:[0-9]+}/cancel", proxyWithContext(orderServiceURL)).Methods("POST", "OPTIONS")
+
+	// Payment service routes
+	api.HandleFunc("/payments", proxyWithContext(paymentServiceURL)).Methods("POST", "OPTIONS")
+	api.HandleFunc("/payments/{id:[0-9]+}", proxyWithContext(paymentServiceURL)).Methods("GET", "OPTIONS")
+	api.HandleFunc("/payments/order/{orderId:[0-9]+}", proxyWithContext(paymentServiceURL)).Methods("GET", "OPTIONS")
+	// MoMo IPN is called by MoMo server (no auth header) — public
+	api.HandleFunc("/payments/momo/ipn", proxy(paymentServiceURL)).Methods("POST", "OPTIONS")
 
 	// CORS configuration
 	c := cors.New(cors.Options{

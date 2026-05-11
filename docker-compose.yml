@@ -91,6 +91,31 @@ services:
       - sales-network
     restart: unless-stopped
 
+  payment-service:
+    build: ./services/payment-service
+    ports:
+      - "8004:8004"
+    environment:
+      DATABASE_URL: "jdbc:postgresql://postgres:5432/payment_db"
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+      PORT: "8004"
+      ORDER_SERVICE_URL: "http://order-service:8003"
+      MOMO_PARTNER_CODE: "${MOMO_PARTNER_CODE:-MOMO_PARTNER_CODE}"
+      MOMO_ACCESS_KEY: "${MOMO_ACCESS_KEY:-MOMO_ACCESS_KEY}"
+      MOMO_SECRET_KEY: "${MOMO_SECRET_KEY:-MOMO_SECRET_KEY}"
+      MOMO_ENDPOINT: "${MOMO_ENDPOINT:-https://test-payment.momo.vn/v2/gateway/api/create}"
+      MOMO_REDIRECT_URL: "${MOMO_REDIRECT_URL:-http://localhost:3000/orders}"
+      MOMO_IPN_URL: "${MOMO_IPN_URL:-http://payment-service:8004/api/payments/momo/ipn}"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      order-service:
+        condition: service_started
+    networks:
+      - sales-network
+    restart: unless-stopped
+
   api-gateway:
     build: ./api-gateway
     ports:
@@ -99,6 +124,7 @@ services:
       AUTH_SERVICE_URL: "http://auth-service:8001"
       PRODUCT_SERVICE_URL: "http://product-service:8002"
       ORDER_SERVICE_URL: "http://order-service:8003"
+      PAYMENT_SERVICE_URL: "http://payment-service:8004"
       ADMIN_SERVICE_URL: "http://admin-service:8005"
       FILE_SERVICE_URL: "http://file-service:80"
       JWT_SECRET: "${JWT_SECRET:-your-secret-key-change-this-in-production}"
@@ -107,6 +133,7 @@ services:
       - auth-service
       - product-service
       - order-service
+      - payment-service
       - admin-service
       - file-service
     networks:

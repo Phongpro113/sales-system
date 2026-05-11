@@ -53,6 +53,14 @@ coverage/
 coverage.out
 *.cover
 
+# Java / Maven (payment-service)
+target/
+*.class
+*.jar
+*.war
+*.ear
+.mvn/wrapper/maven-wrapper.jar
+
 # Misc
 .cache/
 tmp/

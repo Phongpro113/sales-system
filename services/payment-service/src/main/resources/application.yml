@@ -1,0 +1,31 @@
+server:
+  port: ${PORT:8004}
+
+spring:
+  application:
+    name: payment-service
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/payment_db}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+
+momo:
+  partner-code: ${MOMO_PARTNER_CODE:MOMO_PARTNER_CODE}
+  access-key: ${MOMO_ACCESS_KEY:MOMO_ACCESS_KEY}
+  secret-key: ${MOMO_SECRET_KEY:MOMO_SECRET_KEY}
+  endpoint: ${MOMO_ENDPOINT:https://test-payment.momo.vn/v2/gateway/api/create}
+  redirect-url: ${MOMO_REDIRECT_URL:http://localhost:3000/orders}
+  ipn-url: ${MOMO_IPN_URL:http://localhost:8004/api/payments/momo/ipn}
+  request-type: payWithMethod
+
+services:
+  order-service-url: ${ORDER_SERVICE_URL:http://localhost:8003}

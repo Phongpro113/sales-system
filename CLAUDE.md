@@ -2,3 +2,4 @@
 - admin-service use Gin framework v1.9.1
 frontend in `frontend/` use tanstack/react-table, primereact, tailwindcss
 - read files in folder .github/rules
+- Code in an extensible way
