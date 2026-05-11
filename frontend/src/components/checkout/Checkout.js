@@ -7,9 +7,9 @@ import Input, { Textarea } from '../ui/Input';
 import './Checkout.css';
 
 const PAYMENT_METHODS = [
-  { value: 'cod', label: 'Cash on Delivery' },
-  { value: 'bank_transfer', label: 'Bank Transfer' },
-  { value: 'credit_card', label: 'Credit Card' },
+  { value: 'cod', label: 'Cash on Delivery', icon: '/images/icon/cash.svg' },
+  { value: 'bank_transfer', label: 'Bank Transfer', icon: '/images/icon/bank-transfer.svg' },
+  { value: 'momo', label: 'MoMo', icon: '/images/icon/momo.svg' },
 ];
 
 const Checkout = () => {
@@ -116,9 +116,10 @@ const Checkout = () => {
 
         <h2>Payment Method</h2>
         <div className="payment-options">
-          {PAYMENT_METHODS.map(({ value, label }) => (
+          {PAYMENT_METHODS.map(({ value, label, icon }) => (
             <label key={value} className={`payment-option${form.paymentMethod === value ? ' selected' : ''}`}>
               <input type="radio" name="paymentMethod" value={value} checked={form.paymentMethod === value} onChange={handleChange} />
+              <img src={icon} alt={label} className="payment-icon" />
               <span>{label}</span>
             </label>
           ))}

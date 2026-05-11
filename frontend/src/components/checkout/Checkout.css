@@ -71,6 +71,12 @@
   font-weight: 500;
 }
 
+.payment-icon {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
 /* Order summary panel */
 .checkout-summary {
   background: #fff;
