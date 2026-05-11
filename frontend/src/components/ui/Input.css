@@ -1,0 +1,22 @@
+.ui-input {
+  padding: 0.65rem 0.875rem;
+  border: 1.5px solid #ddd;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  background: #fafafa;
+  transition: border-color 0.2s, background 0.2s;
+  width: 100%;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+
+.ui-input:focus {
+  outline: none;
+  border-color: #4f46e5;
+  background: #fff;
+}
+
+.ui-textarea {
+  resize: vertical;
+  min-height: 80px;
+}

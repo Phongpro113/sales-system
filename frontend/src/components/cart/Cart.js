@@ -1,4 +1,3 @@
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useCart } from '../../contexts/CartContext';
@@ -9,25 +8,12 @@ const Cart = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  const handleCheckout = async () => {
+  const handleCheckout = () => {
     if (!user) {
       navigate('/login');
       return;
     }
-
-    const orderItems = cart.map(item => ({
-      product_id: item.id,
-      quantity: item.quantity
-    }));
-
-    try {
-      const response = await axios.post('/api/orders', { items: orderItems });
-      alert('Order placed successfully!');
-      clearCart();
-      navigate('/orders');
-    } catch (error) {
-      alert('Failed to place order: ' + (error.response?.data || error.message));
-    }
+    navigate('/checkout');
   };
 
   if (cart.length === 0) {

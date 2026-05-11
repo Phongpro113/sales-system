@@ -32,12 +32,13 @@ type Order struct {
 }
 
 type OrderItem struct {
-    ID        uint    `json:"id" gorm:"primaryKey"`
-    OrderID   uint    `json:"order_id" gorm:"index"`
-    ProductID uint    `json:"product_id" gorm:"not null"`
-    Quantity  int     `json:"quantity" gorm:"not null"`
-    Price     float64 `json:"price" gorm:"not null"`
-    Subtotal  float64 `json:"subtotal" gorm:"-"`
+    ID          uint    `json:"id" gorm:"primaryKey"`
+    OrderID     uint    `json:"order_id" gorm:"index"`
+    ProductID   uint    `json:"product_id" gorm:"not null"`
+    ProductName string  `json:"product_name" gorm:"-"`
+    Quantity    int     `json:"quantity" gorm:"not null"`
+    Price       float64 `json:"price" gorm:"not null"`
+    Subtotal    float64 `json:"subtotal" gorm:"-"`
 }
 
 type Product struct {
@@ -76,6 +77,23 @@ func initDB() {
     if err := db.AutoMigrate(&Order{}, &OrderItem{}); err != nil {
         log.Fatal("Failed to migrate database:", err)
     }
+}
+
+func enrichItemsWithProductNames(items []OrderItem) []OrderItem {
+    for i := range items {
+        if items[i].ProductName != "" {
+            items[i].Subtotal = items[i].Price * float64(items[i].Quantity)
+            continue
+        }
+        product, err := getProduct(items[i].ProductID)
+        if err == nil {
+            items[i].ProductName = product.Name
+        } else {
+            items[i].ProductName = fmt.Sprintf("Product #%d", items[i].ProductID)
+        }
+        items[i].Subtotal = items[i].Price * float64(items[i].Quantity)
+    }
+    return items
 }
 
 func generateOrderNumber() string {
@@ -181,9 +199,10 @@ func createOrderHandler(w http.ResponseWriter, r *http.Request) {
         total += subtotal
         
         orderItems = append(orderItems, OrderItem{
-            ProductID: item.ProductID,
-            Quantity:  item.Quantity,
-            Price:     product.Price,
+            ProductID:   item.ProductID,
+            ProductName: product.Name,
+            Quantity:    item.Quantity,
+            Price:       product.Price,
         })
     }
     
@@ -230,7 +249,6 @@ func createOrderHandler(w http.ResponseWriter, r *http.Request) {
         return
     }
     
-    // Calculate subtotals for response
     for i := range orderItems {
         orderItems[i].Subtotal = orderItems[i].Price * float64(orderItems[i].Quantity)
     }
@@ -280,15 +298,8 @@ func getOrdersHandler(w http.ResponseWriter, r *http.Request) {
     query.Model(&Order{}).Count(&total)
     query.Order("created_at DESC").Offset(offset).Limit(limit).Find(&orders)
     
-    // Fetch product details for each item (in parallel for better performance)
     for i := range orders {
-        for j := range orders[i].Items {
-            _, err := getProduct(orders[i].Items[j].ProductID)
-            if err == nil {
-                // We don't have Product field in OrderItem, but we can add it or just log
-                orders[i].Items[j].Subtotal = orders[i].Items[j].Price * float64(orders[i].Items[j].Quantity)
-            }
-        }
+        orders[i].Items = enrichItemsWithProductNames(orders[i].Items)
     }
     
     w.Header().Set("Content-Type", "application/json")
@@ -325,11 +336,8 @@ func getOrderHandler(w http.ResponseWriter, r *http.Request) {
         return
     }
     
-    // Calculate subtotals
-    for i := range order.Items {
-        order.Items[i].Subtotal = order.Items[i].Price * float64(order.Items[i].Quantity)
-    }
-    
+    order.Items = enrichItemsWithProductNames(order.Items)
+
     w.Header().Set("Content-Type", "application/json")
     json.NewEncoder(w).Encode(order)
 }

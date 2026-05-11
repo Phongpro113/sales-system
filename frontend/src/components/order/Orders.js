@@ -14,7 +14,7 @@ const Orders = () => {
   const fetchOrders = async () => {
     try {
       const response = await axios.get('/api/orders');
-      setOrders(response.data);
+      setOrders(response.data.orders || []);
     } catch (err) {
       setError('Failed to fetch orders');
       console.error(err);
@@ -48,7 +48,7 @@ const Orders = () => {
             <div key={order.id} className="order-card">
               <div className="order-header">
                 <div>
-                  <strong>Order #{order.id}</strong>
+                  <strong>Order #{order.order_number || order.id}</strong>
                   <p className="order-date">{new Date(order.created_at).toLocaleDateString()}</p>
                 </div>
                 <div className="order-status" style={{ color: getStatusColor(order.status) }}>
@@ -59,9 +59,9 @@ const Orders = () => {
                 </div>
               </div>
               <div className="order-items">
-                {order.items.map(item => (
+                {(order.items || []).map(item => (
                   <div key={item.id} className="order-item">
-                    <div className="item-name">{item.product?.name || `Product #${item.product_id}`}</div>
+                    <div className="item-name">{item.product_name}</div>
                     <div className="item-details">
                       ${item.price.toFixed(2)} x {item.quantity} = ${(item.price * item.quantity).toFixed(2)}
                     </div>

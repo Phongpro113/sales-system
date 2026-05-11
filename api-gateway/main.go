@@ -232,6 +232,7 @@ func main() {
 	api.HandleFunc("/products", proxyWithContext(productServiceURL)).Methods("GET", "POST", "OPTIONS")
 	api.HandleFunc("/products/{id:[0-9]+}", proxyWithContext(productServiceURL)).Methods("GET", "PUT", "DELETE", "OPTIONS")
 	api.HandleFunc("/products/{id:[0-9]+}/stock", proxyWithContext(productServiceURL)).Methods("PATCH", "OPTIONS")
+	api.HandleFunc("/products/{id:[0-9]+}/validate-buy", proxyWithContext(productServiceURL)).Methods("POST", "OPTIONS")
 	api.HandleFunc("/categories", proxyWithContext(productServiceURL)).Methods("GET", "OPTIONS")
 
 	// Admin service routes
