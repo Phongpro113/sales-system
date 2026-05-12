@@ -17,6 +17,7 @@ public class PaymentResponse {
     private final PaymentMethod method;
     private final PaymentStatus status;
     private final String payUrl;
+    private final String qrCodeUrl;
     private final String transactionId;
     private final LocalDateTime createdAt;
 
@@ -27,6 +28,7 @@ public class PaymentResponse {
         this.method = payment.getMethod();
         this.status = payment.getStatus();
         this.payUrl = payment.getPayUrl();
+        this.qrCodeUrl = payment.getQrCodeUrl();
         this.transactionId = payment.getTransactionId();
         this.createdAt = payment.getCreatedAt();
     }

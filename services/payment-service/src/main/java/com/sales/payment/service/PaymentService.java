@@ -91,6 +91,7 @@ public class PaymentService {
 
         payment.setGatewayRef(momoResponse.getRequestId());
         payment.setPayUrl(momoResponse.getPayUrl());
+        payment.setQrCodeUrl(momoResponse.getQrCodeUrl());
         return payment;
     }
 }

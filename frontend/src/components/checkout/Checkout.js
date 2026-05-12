@@ -62,17 +62,36 @@ const Checkout = () => {
         .filter(Boolean)
         .join(', ');
 
-      await axios.post('/api/orders', {
+      const res = await axios.post('/api/orders', {
         items: cart.map(item => ({ product_id: item.id, quantity: item.quantity })),
         payment_method: form.paymentMethod,
         shipping_address: shippingAddress,
         notes: form.notes,
       });
 
-      navigate('/orders');
+      const orderId = res.data.id;
+      const total = getTotal();
       clearCart();
+
+      if (form.paymentMethod === 'momo') {
+        const payRes = await axios.post('/api/payments', {
+          orderId,
+          amount: Math.round(total),
+          method: 'MOMO',
+        });
+        navigate('/checkout/momo', {
+          state: { orderId, amount: Math.round(total), qrCodeUrl: payRes.data.qrCodeUrl, payUrl: payRes.data.payUrl },
+        });
+      } else {
+        navigate('/orders');
+      }
     } catch (err) {
-      setSubmitError(err.response?.data || 'Failed to place order. Please try again.');
+      console.error('Order error:', err.response?.status, JSON.stringify(err.response?.data));
+      const data = err.response?.data;
+      setSubmitError(
+        typeof data === 'string' ? data.trim()
+        : data?.message || data?.error || 'Đặt hàng thất bại. Vui lòng thử lại.'
+      );
     } finally {
       setSubmitting(false);
     }

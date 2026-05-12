@@ -2,6 +2,7 @@ import { Navigate, Route, BrowserRouter as Router, Routes } from 'react-router-d
 import './App.css';
 import Cart from './components/cart/Cart';
 import Checkout from './components/checkout/Checkout';
+import MomoPaymentPage from './components/checkout/MomoPaymentPage';
 import Login from './components/auth/Login';
 import Navbar from './components/layout/Navbar';
 import Orders from './components/order/Orders';
@@ -32,6 +33,7 @@ function App() {
                 <Route path="/products/:id" element={<ProductDetail />} />
                 <Route path="/cart" element={<PrivateRoute><Cart /></PrivateRoute>} />
                 <Route path="/checkout" element={<PrivateRoute><Checkout /></PrivateRoute>} />
+                <Route path="/checkout/momo" element={<PrivateRoute><MomoPaymentPage /></PrivateRoute>} />
                 <Route path="/orders" element={<PrivateRoute><Orders /></PrivateRoute>} />
                 
                 {/* Admin Routes */}

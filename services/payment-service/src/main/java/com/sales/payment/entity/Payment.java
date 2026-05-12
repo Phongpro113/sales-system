@@ -46,6 +46,10 @@ public class Payment {
     @Column(name = "pay_url", length = 1024)
     private String payUrl;
 
+    // QR code image URL from MoMo
+    @Column(name = "qr_code_url", length = 1024)
+    private String qrCodeUrl;
+
     @Column(name = "failure_reason")
     private String failureReason;
 

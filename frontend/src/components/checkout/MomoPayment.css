@@ -1,0 +1,175 @@
+.momo-payment {
+  max-width: 480px;
+  margin: 2rem auto;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.momo-header {
+  background: #ae2070;
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+}
+
+.momo-logo {
+  width: 40px;
+  height: 40px;
+}
+
+.momo-header h2 {
+  margin: 0;
+  color: #fff;
+  font-size: 1.25rem;
+}
+
+.momo-body {
+  padding: 1.5rem;
+}
+
+.momo-qr-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.momo-qr-hint {
+  font-size: 0.82rem;
+  color: #777;
+  margin: 0;
+}
+
+.momo-divider {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 1rem 0;
+  color: #aaa;
+  font-size: 0.8rem;
+}
+
+.momo-divider::before,
+.momo-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: #eee;
+}
+
+.momo-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  background: #fdf4f8;
+  border-radius: 10px;
+  padding: 1rem;
+}
+
+.momo-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.momo-label {
+  font-size: 0.82rem;
+  color: #888;
+  white-space: nowrap;
+}
+
+.momo-value-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.momo-value {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  text-align: right;
+}
+
+.momo-amount {
+  color: #ae2070;
+  font-size: 1.05rem;
+}
+
+.momo-content {
+  font-family: monospace;
+  letter-spacing: 0.05em;
+}
+
+.copy-btn {
+  padding: 0.2rem 0.6rem;
+  font-size: 0.75rem;
+  background: #ae2070;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s;
+}
+
+.copy-btn:hover {
+  background: #8f1a5c;
+}
+
+.momo-note {
+  margin-top: 1rem;
+  font-size: 0.8rem;
+  color: #b45309;
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 8px;
+  padding: 0.625rem 0.875rem;
+  line-height: 1.5;
+}
+
+.momo-footer {
+  padding: 1rem 1.5rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.momo-done-btn {
+  width: 100%;
+  padding: 0.875rem;
+  background: #ae2070;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.momo-done-btn:hover {
+  background: #8f1a5c;
+}
+
+.momo-cancel-btn {
+  width: 100%;
+  padding: 0.75rem;
+  background: transparent;
+  color: #888;
+  border: 1.5px solid #ddd;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.momo-cancel-btn:hover {
+  border-color: #aaa;
+  color: #555;
+}
