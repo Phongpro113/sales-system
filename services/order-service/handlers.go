@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -88,11 +87,6 @@ func createOrderHandler(w http.ResponseWriter, r *http.Request) {
 		if err := tx.Create(&orderItems).Error; err != nil {
 			return err
 		}
-		for _, item := range req.Items {
-			if err := updateProductStock(item.ProductID, item.Quantity); err != nil {
-				return fmt.Errorf("failed to update stock for product %d: %w", item.ProductID, err)
-			}
-		}
 		return nil
 	})
 
@@ -105,6 +99,8 @@ func createOrderHandler(w http.ResponseWriter, r *http.Request) {
 		orderItems[i].Subtotal = orderItems[i].Price * float64(orderItems[i].Quantity)
 	}
 	order.Items = orderItems
+
+	publishOrderCreated(order, orderItems)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
@@ -249,14 +245,6 @@ func cancelOrderHandler(w http.ResponseWriter, r *http.Request) {
 	if order.Status != "pending" && order.Status != "confirmed" {
 		http.Error(w, "Only pending or confirmed orders can be cancelled", http.StatusBadRequest)
 		return
-	}
-
-	var items []OrderItem
-	db.Where("order_id = ?", id).Find(&items)
-	for _, item := range items {
-		if err := updateProductStock(item.ProductID, -item.Quantity); err != nil {
-			log.Printf("Warning: Failed to restore stock for product %d: %v", item.ProductID, err)
-		}
 	}
 
 	order.Status = "cancelled"

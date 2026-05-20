@@ -12,8 +12,14 @@ Thêm vào checkout session
     ↓
 Chọn thanh toán
     ↓
-Tạo order
-    ↓
-Thanh toán
+Order Service
+   ↓
+Publish: order.created
+   ↓
+Kafka
+   ↓
+Product Service consume
+   ↓
+Reserve / reduce stock
     ↓
 Success / Failed

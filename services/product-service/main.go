@@ -11,6 +11,7 @@ import (
 
 func main() {
 	initDB()
+	startKafkaConsumer()
 
 	r := mux.NewRouter()
 

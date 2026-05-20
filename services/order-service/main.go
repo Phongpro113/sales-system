@@ -29,6 +29,7 @@ func main() {
 	}
 
 	initDB()
+	initKafkaProducer()
 
 	r := mux.NewRouter()
 	api := r.PathPrefix("/api").Subrouter()
